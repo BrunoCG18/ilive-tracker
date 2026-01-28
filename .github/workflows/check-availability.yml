@@ -2,8 +2,8 @@ name: Check Apartment Availability
 
 on:
   schedule:
-    # Backup cron trigger every 30 minutes in case self-trigger fails
-    - cron: '*/30 * * * *'
+    # Runs every 10 minutes (GitHub may delay by 10-30 min, so effective ~20-30 min)
+    - cron: '*/10 * * * *'
   workflow_dispatch: # Allow manual trigger from GitHub UI
 
 jobs:
@@ -37,12 +37,3 @@ jobs:
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
           EMAIL_TO: ${{ secrets.EMAIL_TO }}
         run: python main.py --once
-
-      - name: Wait 10 minutes then trigger next run
-        run: |
-          echo "Waiting 10 minutes before triggering next check..."
-          sleep 600
-          echo "Triggering next workflow run..."
-          gh workflow run check-availability.yml
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

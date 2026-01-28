@@ -1,0 +1,43 @@
+name: Test Email Notification
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Send test email
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_TO: ${{ secrets.EMAIL_TO }}
+        run: |
+          python -c "
+          import os
+          from notifier import send_email
+
+          send_email(
+              smtp_host=os.environ['SMTP_HOST'],
+              smtp_port=os.environ['SMTP_PORT'],
+              email_from=os.environ['EMAIL_FROM'],
+              email_password=os.environ['EMAIL_PASSWORD'],
+              email_to=os.environ['EMAIL_TO'],
+              subject='Ilive Tracker - Test Email from GitHub Actions',
+              body_html='<h2>It works!</h2><p>Your GitHub Actions email setup is working correctly.</p>',
+          )
+          print('Test email sent successfully!')
+          "
